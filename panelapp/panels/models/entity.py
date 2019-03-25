@@ -124,6 +124,9 @@ class AbstractEntity:
         It goes through evidences, check if they are valid or were provided by
         curators, and returns the status.
         This status is later used to determine the colour on the frontend and APIs
+
+
+        check for gel status > 3 & migration to check entities with status > 3 & increment panel_version for all unique panels
         """
 
         if self.flagged:
@@ -149,6 +152,9 @@ class AbstractEntity:
 
         if has_gel_reviews and gel_status == 0:
             gel_status = 1
+
+        if gel_status > 3:
+            gel_status = 3
 
         if update:
             self.saved_gel_status = gel_status

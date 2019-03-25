@@ -1122,9 +1122,7 @@ class GenePanelSnapshot(TimeStampedModel):
             + list(self.get_all_strs_extra)
             + list(self.get_all_regions_extra)
         )
-        return sorted(
-            res, key=lambda x: (x.saved_gel_status * -1, x.entity_name.lower())
-        )
+        return sorted(res, key=lambda x: (x.saved_gel_status * -1, x.entity_name.lower()))
 
     @cached_property
     def get_all_regions(self):
@@ -1132,6 +1130,7 @@ class GenePanelSnapshot(TimeStampedModel):
         return self.get_all(self.cached_regions)
 
     def get_all_extra(self, qs):
+        print(qs)
         return qs.annotate(
             entity_tags=ArrayAgg("tags__name", distinct=True),
             number_of_green_evaluations=Count(
