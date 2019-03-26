@@ -126,7 +126,6 @@ class AbstractEntity:
         This status is later used to determine the colour on the frontend and APIs
 
 
-        check for gel status > 3 & migration to check entities with status > 3 & increment panel_version for all unique panels
         """
 
         if self.flagged:
