@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand
+from django.db.models import Q
 from panels.models import GenePanelSnapshot, GenePanelEntrySnapshot, Region, STR
 
 
@@ -6,7 +7,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         for panel in GenePanelSnapshot.objects.get_active(
-                all=True, internal=True, superpanels=False).filter(genepanelentrysnapshot__saved_gel_status__gt=3):
+                all=True, internal=True, superpanels=False).filter(Q(genepanelentrysnapshot__saved_gel_status__gt=3)|
+                                                                   Q(region__saved_gel_status__gt=3)|Q(str__saved_gel_status__gt=3)):
 
             if panel.is_super_panel:
                 continue
