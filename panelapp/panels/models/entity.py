@@ -219,12 +219,12 @@ class AbstractEntity:
             return False
 
     def add_review_comment(self, user, comment):
-        comment = Comment.objects.create(user=user, comment=comment)
+        comment = Comment.objects.create(user=user, comment=comment, version=self.panel.version, last_updated=timezone.now())
 
         evaluation = self.review_by_user(user)
         if not evaluation:
             evaluation = Evaluation.objects.create(
-                user=user, version=self.panel.version
+                user=user, version=self.panel.version, last_updated=timezone.now()
             )
             self.evaluation.add(evaluation)
         evaluation.comments.add(comment)
@@ -245,6 +245,9 @@ class AbstractEntity:
         evaluation = self.evaluation.get(comments=comment_pk)
         comment = evaluation.comments.get(pk=comment_pk)
         evaluation.modified = timezone.now()
+        evaluation.last_updated = timezone.now()
+        comment.last_updated = timezone.now()
+        comment.version = self.panel.version
         old_comment = comment.comment
         comment.comment = new_comment
         comment.save()
@@ -584,7 +587,7 @@ class AbstractEntity:
 
             if evaluation_data.get("comment"):
                 comment = Comment.objects.create(
-                    user=user, comment=evaluation_data.get("comment")
+                    user=user, comment=evaluation_data.get("comment"), version=self.panel.version, last_updated=timezone.now()
                 )
                 evaluation.comments.add(comment)
                 activities.append(
@@ -678,12 +681,13 @@ class AbstractEntity:
                 current_diagnostic=evaluation_data.get("current_diagnostic"),
                 clinically_relevant=evaluation_data.get("clinically_relevant"),
                 version=self.panel.version,
+                last_updated=timezone.now(),
             )
             self.evaluation.add(evaluation)
 
             if evaluation_data.get("comment"):
                 comment = Comment.objects.create(
-                    user=user, comment=evaluation_data.get("comment")
+                    user=user, comment=evaluation_data.get("comment"), version=self.panel.version, last_updated=timezone.now()
                 )
                 evaluation.comments.add(comment)
 

@@ -594,6 +594,8 @@ class GenePanelSnapshot(TimeStampedModel):
         if self != self.panel.active_panel:
             raise Exception("Cannot increment non recent version")
 
+        print('!!!!!!!!!!!!!!!!!!!')
+
         with transaction.atomic():
             if self.is_super_panel:
                 distinct_child_panels = set(
