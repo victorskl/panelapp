@@ -219,7 +219,12 @@ class AbstractEntity:
             return False
 
     def add_review_comment(self, user, comment):
-        comment = Comment.objects.create(user=user, comment=comment, version=self.panel.version, last_updated=timezone.now())
+        comment = Comment.objects.create(
+            user=user,
+            comment=comment,
+            version=self.panel.version,
+            last_updated=timezone.now(),
+        )
 
         evaluation = self.review_by_user(user)
         if not evaluation:
@@ -587,7 +592,10 @@ class AbstractEntity:
 
             if evaluation_data.get("comment"):
                 comment = Comment.objects.create(
-                    user=user, comment=evaluation_data.get("comment"), version=self.panel.version, last_updated=timezone.now()
+                    user=user,
+                    comment=evaluation_data.get("comment"),
+                    version=self.panel.version,
+                    last_updated=timezone.now(),
                 )
                 evaluation.comments.add(comment)
                 activities.append(
@@ -687,7 +695,10 @@ class AbstractEntity:
 
             if evaluation_data.get("comment"):
                 comment = Comment.objects.create(
-                    user=user, comment=evaluation_data.get("comment"), version=self.panel.version, last_updated=timezone.now()
+                    user=user,
+                    comment=evaluation_data.get("comment"),
+                    version=self.panel.version,
+                    last_updated=timezone.now(),
                 )
                 evaluation.comments.add(comment)
 

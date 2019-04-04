@@ -11,8 +11,8 @@ from panels.tests.factories import GenePanelSnapshotFactory
 
 fake = Factory.create()
 
-class CommandTest(LoginGELUser):
 
+class CommandTest(LoginGELUser):
     def test_fix_gel_status(self):
         gene = GeneFactory()
         gps = GenePanelSnapshotFactory()
@@ -36,7 +36,9 @@ class CommandTest(LoginGELUser):
         gene = panel.get_gene(gene.gene_symbol)
         gene.saved_gel_status = 4
         gene.save()
-        call_command('fix_gel_status')
-        panel = GenePanelSnapshot.objects.get_active(all=True, internal=True, superpanels=False)[0]
+        call_command("fix_gel_status")
+        panel = GenePanelSnapshot.objects.get_active(
+            all=True, internal=True, superpanels=False
+        )[0]
 
         assert panel.genepanelentrysnapshot_set.all()[0].saved_gel_status == 3
