@@ -1,0 +1,11 @@
+.DS_Store
+
+.terraform
+*.tfstate
+*.tfstate.backup
+.terraform.tfstate.lock.info
+terraform.tfstate.d
+*.auto.tfvars
+terraform.tfvars
+
+backend.conf

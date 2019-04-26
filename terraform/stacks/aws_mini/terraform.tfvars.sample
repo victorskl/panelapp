@@ -1,0 +1,10 @@
+region = "ap-southeast-2"
+image = "victorskl/panelapp"
+db_instance_class = "db.t2.micro"
+db_allocated_storage = 5
+nginx_cpu = "1024"
+nginx_memory = "2048"
+nginx_replica = 1
+app_cpu = "2048"
+app_memory = "8192"
+app_replica = 1
