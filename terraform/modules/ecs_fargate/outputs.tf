@@ -1,4 +1,9 @@
 output "dns_name" {
   description = "The DNS name of the load balancer."
-  value = "${element(concat(aws_lb.main.*.dns_name), 0)}"
+  value = "${local.lb_dns_name}"
+}
+
+output "panel_app_base_url" {
+  description = "App Base URL"
+  value = "${local.base_url}"
 }

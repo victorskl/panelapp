@@ -63,3 +63,58 @@ variable "app_replica" {
 variable "app_container_name" {
   default = "web"
 }
+
+variable "worker_cpu" {
+  description = "CPU for running Django PanelApp Celery Worker"
+  default = "1024"
+}
+
+variable "worker_memory" {
+  description = "Memory for running Django PanelApp Celery Worker"
+  default = "4096"
+}
+
+variable "worker_replica" {
+  description = "Number of Django PanelApp Celery Worker replica count"
+  default = 1
+}
+
+variable "worker_container_name" {
+  default = "worker"
+}
+
+variable "email_port" {
+  description = "Email Port"
+  default = 587
+}
+
+variable "email_use_tls" {
+  description = "Email Use TLS"
+  default = "True"
+}
+
+variable "default_from_email" {
+  description = "PanelApp send emails as this address"
+  default = "PanelApp <panelapp@panelapp.local>"
+}
+
+variable "panel_app_email" {
+  description = "PanelApp email address"
+  default = "panelapp@panelapp.local"
+}
+
+variable "app_domain_name" {
+  description = "App Domain Name"
+}
+
+// Optional
+
+variable "health_access_token_location" {
+  description = "URL token for authorizing status checks"
+  default = "/app/health_token"
+}
+
+variable "django_admin_url" {
+  description = "To Change Django Admin URL to Something Secure"
+  default = "admin/"
+}

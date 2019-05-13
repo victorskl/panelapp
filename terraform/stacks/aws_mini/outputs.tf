@@ -22,3 +22,8 @@ output "dns_name" {
   description = "The DNS name of the load balancer."
   value = "${module.ecs.dns_name}"
 }
+
+output "panel_app_base_url" {
+  description = "App Base URL"
+  value = "${module.ecs.panel_app_base_url}"
+}
