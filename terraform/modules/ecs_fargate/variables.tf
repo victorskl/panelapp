@@ -49,6 +49,25 @@ variable "nginx_container_name" {
   default = "nginx"
 }
 
+variable "worker_cpu" {
+  description = "CPU for running Django PanelApp Celery Worker"
+  default = "1024"
+}
+
+variable "worker_memory" {
+  description = "Memory for running Django PanelApp Celery Worker"
+  default = "4096"
+}
+
+variable "worker_replica" {
+  description = "Number of Django PanelApp Celery Worker replica count"
+  default = 1
+}
+
+variable "worker_container_name" {
+  default = "worker"
+}
+
 variable "app_cpu" {
   description = "CPU for running Django PanelApp"
   default = "2048"
@@ -90,6 +109,11 @@ variable "django_secret_key" {
   description = "Django SECRET_KEY"
 }
 
+variable "django_admin_url" {
+  description = "To Change Django Admin URL to Something Secure"
+  default = "admin/"
+}
+
 variable "static_root" {
   description = "Django STATIC_ROOT"
   default = "/static"
@@ -106,6 +130,46 @@ variable "allowed_hosts" {
 }
 
 variable "celery_broker_url" {
-  description = "celery_broker_url"
-  default = "amqp://rabbitmq/panelapp"
+  description = "Django Worker Celery Broker Connection Url"
+}
+
+variable "health_access_token_location" {
+  description = "URL token for authorizing status checks"
+  default = "/app/health_token"
+}
+
+variable "email_host" {
+  description = "Email Host"
+}
+
+variable "email_host_user" {
+  description = "Email Host User"
+}
+
+variable "email_host_password" {
+  description = "Email Host Password"
+}
+
+variable "email_port" {
+  description = "Email Port"
+  default = 587
+}
+
+variable "email_use_tls" {
+  description = "Email Use TLS"
+  default = "True"
+}
+
+variable "default_from_email" {
+  description = "PanelApp send emails as this address"
+  default = "PanelApp <panelapp@panelapp.local>"
+}
+
+variable "panel_app_email" {
+  description = "PanelApp email address"
+  default = "panelapp@panelapp.local"
+}
+
+variable "app_domain_name" {
+  description = "App Domain Name"
 }

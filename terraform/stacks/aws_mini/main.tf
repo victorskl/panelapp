@@ -46,6 +46,18 @@ data "aws_ssm_parameter" "django_secret_key" {
   name = "/panelapp/${local.env}/django/secret_key"
 }
 
+data "aws_ssm_parameter" "email_host" {
+  name = "/panelapp/${local.env}/email/host"
+}
+
+data "aws_ssm_parameter" "email_host_user" {
+  name = "/panelapp/${local.env}/email/user"
+}
+
+data "aws_ssm_parameter" "email_host_password" {
+  name = "/panelapp/${local.env}/email/password"
+}
+
 
 //--- Use default VPC
 
@@ -93,7 +105,7 @@ module "db" {
 
   port = "5432"
   engine = "postgres"
-  engine_version = "9.6.9"
+  engine_version = "9.6.11"
   major_engine_version = "9.6"
   family = "postgres9.6"
 
@@ -120,8 +132,25 @@ module "ecs" {
   security_groups_ids = ["${aws_security_group.rds_sg.id}"]
 
   image = "${var.image}"
-  database_url = "postgres://${data.aws_ssm_parameter.db_username.value}:${data.aws_ssm_parameter.db_password.value}@${module.db.this_db_instance_endpoint}/${data.aws_ssm_parameter.db_name.value}db${local.env}"
+  database_url = "postgres://${module.db.this_db_instance_username}:${data.aws_ssm_parameter.db_password.value}@${module.db.this_db_instance_endpoint}/${module.db.this_db_instance_name}"
   django_secret_key = "${data.aws_ssm_parameter.django_secret_key.value}"
+  django_admin_url = "${var.django_admin_url}"
+  health_access_token_location = "${var.health_access_token_location}"
+
+  celery_broker_url = "sqs://"
+
+  // email settings
+
+  email_host = "${data.aws_ssm_parameter.email_host.value}"
+  email_host_user = "${data.aws_ssm_parameter.email_host_user.value}"
+  email_host_password = "${data.aws_ssm_parameter.email_host_password.value}"
+  email_port = "${var.email_port}"
+  email_use_tls = "${var.email_use_tls}"
+
+  default_from_email = "${var.default_from_email}"
+  panel_app_email = "${var.panel_app_email}"
+
+  app_domain_name = "${var.app_domain_name}"
 
   // optional variables
 
@@ -136,4 +165,9 @@ module "ecs" {
   app_memory = "${var.app_memory}"
   app_replica = "${var.app_replica}"
   app_container_name = "${var.app_container_name}"
+
+  worker_cpu = "${var.worker_cpu}"
+  worker_memory = "${var.worker_memory}"
+  worker_replica = "${var.worker_replica}"
+  worker_container_name = "${var.worker_container_name}"
 }
