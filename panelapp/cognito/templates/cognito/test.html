@@ -1,0 +1,102 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cognito Test Page</title>
+  <link rel="stylesheet" href="{% static "bootstrap.min.css" %}">
+  <style>
+    h6 {
+      font-weight: normal;
+      margin-bottom: 0 !important;
+    }
+
+    code {
+      font-size: 13px;
+      white-space: pre;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h3>Cognito Test Page</h3>
+  <a class="btn btn-sm btn-primary" href="/">INDEX</a>
+
+  <small>Version: 2019-06-07 17:00:00</small>
+  <hr>
+
+  <h5>Request</h5>
+  {% if request.method == "GET" %}
+    <h6>GET</h6>
+    <code>{{ request.GET }}</code>
+  {% elif request.method == "POST" %}
+    <h6>POST</h6>
+    <code>{{ request.POST }}</code>
+  {% else %}
+    <h6>Method</h6>
+    <code>{{ request.method }}</code>
+  {% endif %}
+  <h6>Content Params</h6>
+  <code>{{ request.content_params }}</code>
+  <h6>Cookies</h6>
+  <code>{{ request.COOKIES }}</code>
+  <hr>
+
+  <h5>User</h5>
+  <h6>Is authenticated</h6>
+  <code>{{ request.user.is_authenticated }}</code>
+  <h6>Username</h6>
+  <code>{{ request.user.get_username | default:"None" }}</code>
+  {% if request.user.is_authenticated %}
+    <h6>Full name</h6>
+    <code>{{ request.user.get_full_name | default:"None" }}</code>
+    <h6>Email</h6>
+    <code>{{ request.user.email | default:"None" }}</code>
+    <h6>Reviewer</h6>
+    <code>{{ request.user.reviewer | default:"None" }}</code>
+  {% endif %}
+  <hr>
+
+  <h5>Amazon</h5>
+  <h6>Trace ID</h6>
+  <code>{{ request.META.HTTP_X_AMZN_TRACE_ID|default:'None' }}</code>
+  <h6>OIDC Token</h6>
+  <code>{{ request.META.HTTP_X_AMZN_OIDC_ACCESSTOKEN|default:'None' }}</code>
+  <h6>OIDC Identity</h6>
+  <code>{{ request.META.HTTP_X_AMZN_OIDC_IDENTITY|default:'None' }}</code>
+  <h6>OIDC Data</h6>
+  <code>{{ request.META.HTTP_X_AMZN_OIDC_DATA|default:'None' }}</code>
+  <h6>AWS User</h6>
+  <code>{{ aws_user }}</code>
+  {% if error %}
+    <h6>Error Message</h6>
+    <code>{{ error }}</code>
+  {% endif %}
+  <hr>
+
+  <h5>Session</h5>
+  <h6>Object</h6>
+  <code>{{ request.session }}</code>
+  <h6>Expiry age</h6>
+  <code>{{ request.session.get_expiry_age }}</code>
+  <h6>Expiry date</h6>
+  <code>{{ request.session.get_expiry_date }}</code>
+  <h6>Items</h6>
+  {% for key, value in request.session.items %}
+    <h6>{{ key }}</h6>
+    <code>{{ value }}</code>
+  {% empty %}
+    <code>None</code>
+  {% endfor %}
+  <hr>
+
+  <h5>Meta</h5>
+  {% for key, value in headers %}
+    <h6>{{ key }}</h6>
+    <code>{{ value }}</code>
+  {% endfor %}
+  <br><br>
+
+</div>
+</body>
+</html>

@@ -62,6 +62,7 @@ schema_view = get_schema_view(
 urlpatterns = [
     path("", Homepage.as_view(), name="home"),
     path("accounts/", include("accounts.urls", namespace="accounts")),
+    path("cognito/", include("cognito.urls", namespace="cognito")),
     path("panels/", include("panels.urls", namespace="panels")),
     path("crowdsourcing/", include("v1rewrites.urls", namespace="v1rewrites")),
     re_path(

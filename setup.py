@@ -81,5 +81,6 @@ setup(
         "django-qurl-templatetag==0.0.13",
         "django-click==2.1.0",
         "django-filter==2.0.0",
+        "boto3",
     ],
 )

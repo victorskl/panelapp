@@ -102,7 +102,7 @@ CUSTOM_APPS = [
     "django_filters",
 ]
 
-PROJECT_APPS = ["panelapp", "accounts", "panels", "webservices", "v1rewrites", "api"]
+PROJECT_APPS = ["panelapp", "accounts", "panels", "webservices", "v1rewrites", "api", "cognito"]
 
 INSTALLED_APPS = DJANGO_APPS + CUSTOM_APPS + PROJECT_APPS
 
