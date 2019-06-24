@@ -16,6 +16,10 @@
     },
     "environment": [
       {
+        "name": "AWS_REGION",
+        "value": "${region}"
+      },
+      {
         "name": "DATABASE_URL",
         "value": "${database_url}"
       },

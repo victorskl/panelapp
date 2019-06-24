@@ -2,7 +2,7 @@
   {
     "name": "db_migrate",
     "image": "${image}",
-    "command": ["python", "/app/panelapp/manage.py", "migrate"],
+    "entrypoint": ["bash", "-c", "python /app/panelapp/manage.py migrate && python /app/panelapp/manage.py createsuperuser2 --username ${admin_username} --email ${admin_email} --password ${admin_password} --preserve --noinput"],
     "memory": ${memory},
     "networkMode": "${network_mode}",
     "logConfiguration": {
@@ -14,6 +14,10 @@
       }
     },
     "environment": [
+      {
+        "name": "AWS_REGION",
+        "value": "${region}"
+      },
       {
         "name": "DATABASE_URL",
         "value": "${database_url}"
@@ -50,6 +54,18 @@
       }
     },
     "environment": [
+      {
+        "name": "AWS_REGION",
+        "value": "${region}"
+      },
+      {
+        "name": "AWS_COGNITO_DOMAIN_PREFIX",
+        "value": "${aws_cognito_domain_prefix}"
+      },
+      {
+        "name": "AWS_COGNITO_USER_POOL_CLIENT_ID",
+        "value": "${aws_cognito_user_pool_client_id}"
+      },
       {
         "name": "DATABASE_URL",
         "value": "${database_url}"

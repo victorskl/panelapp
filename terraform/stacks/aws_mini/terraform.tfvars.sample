@@ -17,3 +17,5 @@ default_from_email = "PanelApp <panelapp@panelapp.example.com>"
 panel_app_email = "panelapp@panelapp.example.com"
 django_admin_url = "admin/"
 app_domain_name = "panelapp.example.com"
+use_cognito = true
+create_cert = true

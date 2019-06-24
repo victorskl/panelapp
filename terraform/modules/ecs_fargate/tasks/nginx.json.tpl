@@ -15,6 +15,10 @@
     },
     "environment": [
       {
+        "name": "AWS_REGION",
+        "value": "${region}"
+      },
+      {
         "name": "DJANGO_SETTINGS_MODULE",
         "value": "${django_settings_module}"
       },

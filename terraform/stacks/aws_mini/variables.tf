@@ -118,3 +118,24 @@ variable "django_admin_url" {
   description = "To Change Django Admin URL to Something Secure"
   default = "admin/"
 }
+
+variable "django_settings_module" {
+  description = "e.g. panelapp.settings.production"
+  default = "panelapp.settings.aws"
+}
+
+variable "admin_username" {
+  description = "Admin username (i.e. Django createsuperuser)"
+}
+
+variable "admin_email" {
+  description = "Admin email address"
+}
+
+variable "create_cert" {
+  description = "Create a new ACM SSL certificate? (true/false)"
+}
+
+variable "use_cognito" {
+  description = "Use Cognito? (true/false)"
+}

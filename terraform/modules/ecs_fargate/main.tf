@@ -106,27 +106,42 @@ resource "aws_iam_role_policy" "ecs_task_execution_role_policy" {
 
 //--- ACM and Route53
 
+data "aws_acm_certificate" "existing_cert" {
+  count = "${var.create_cert ? 0 : 1}"
+
+  domain = "${var.app_domain_name}"
+  statuses = ["ISSUED"]
+  types = ["AMAZON_ISSUED", "IMPORTED"]
+  most_recent = true
+}
+
 resource "aws_acm_certificate" "cert" {
+  count = "${var.create_cert ? 1 : 0}"
+
   domain_name = "${var.app_domain_name}"
   validation_method = "DNS"
 }
 
 resource "aws_acm_certificate_validation" "cert" {
+  count = "${var.create_cert ? 1 : 0}"
+
   certificate_arn = "${aws_acm_certificate.cert.arn}"
-  validation_record_fqdns = ["${aws_route53_record.cert_validation.fqdn}"]
+  validation_record_fqdns = ["${aws_route53_record.cert_validation_dns_record.fqdn}"]
 }
 
-data "aws_route53_zone" "app_dns_zone" {
-  name = "${var.app_domain_name}."
-  private_zone = false
-}
+resource "aws_route53_record" "cert_validation_dns_record" {
+  count = "${var.create_cert ? 1 : 0}"
 
-resource "aws_route53_record" "cert_validation" {
   name = "${aws_acm_certificate.cert.domain_validation_options.0.resource_record_name}"
   type = "${aws_acm_certificate.cert.domain_validation_options.0.resource_record_type}"
   zone_id = "${data.aws_route53_zone.app_dns_zone.zone_id}"
   records = ["${aws_acm_certificate.cert.domain_validation_options.0.resource_record_value}"]
   ttl = 60
+}
+
+data "aws_route53_zone" "app_dns_zone" {
+  name = "${var.app_domain_name}."
+  private_zone = false
 }
 
 resource "aws_route53_record" "app_dns_record" {
@@ -138,6 +153,155 @@ resource "aws_route53_record" "app_dns_record" {
     name = "${local.lb_dns_name}"
     zone_id = "${aws_lb.main.zone_id}"
     evaluate_target_health = true
+  }
+}
+
+
+//--- Cognito
+
+data "aws_ssm_parameter" "google_oauth_client_id" {
+  count = "${var.use_cognito ? 1 : 0}"
+  name = "/panelapp/${var.environment}/cognito/google/oauth_client_id"
+}
+
+data "aws_ssm_parameter" "google_oauth_client_secret" {
+  count = "${var.use_cognito ? 1 : 0}"
+  name = "/panelapp/${var.environment}/cognito/google/oauth_client_secret"
+}
+
+resource "aws_cognito_user_pool" "pool" {
+  count = "${var.use_cognito ? 1 : 0}"
+
+  name = "${var.app_name}-${var.environment}"
+
+  username_attributes = ["email"]
+  auto_verified_attributes = ["email"]
+
+  schema {
+    attribute_data_type = "String"
+    name = "email"
+    required = true
+
+    string_attribute_constraints {
+      min_length = 0
+      max_length = 2048
+    }
+  }
+
+  schema {
+    attribute_data_type = "String"
+    name = "family_name"
+    required = true
+
+    string_attribute_constraints {
+      min_length = 0
+      max_length = 2048
+    }
+  }
+
+  schema {
+    attribute_data_type = "String"
+    name = "given_name"
+    required = true
+
+    string_attribute_constraints {
+      min_length = 0
+      max_length = 2048
+    }
+  }
+
+  admin_create_user_config {
+    allow_admin_create_user_only = "${var.cognito_allow_admin_create_user_only}"
+    unused_account_validity_days = 7
+  }
+
+  password_policy {
+    minimum_length = "${var.cognito_password_length}"
+    require_lowercase = true
+    require_numbers = true
+    require_symbols = "${var.cognito_password_symbols_required}"
+    require_uppercase = true
+  }
+}
+
+resource "aws_cognito_identity_provider" "google" {
+  count = "${var.use_cognito ? 1 : 0}"
+
+  user_pool_id = "${aws_cognito_user_pool.pool.id}"
+  provider_name = "Google"
+  provider_type = "Google"
+
+  provider_details = {
+    authorize_scopes = "openid profile email"
+    client_id = "${data.aws_ssm_parameter.google_oauth_client_id.value}"
+    client_secret = "${data.aws_ssm_parameter.google_oauth_client_secret.value}"
+  }
+
+  attribute_mapping = {
+    username = "sub"
+    email = "email"
+    email_verified = "email_verified"
+    given_name = "given_name"
+    family_name = "family_name"
+  }
+}
+
+resource "aws_cognito_user_pool_client" "client" {
+  count = "${var.use_cognito ? 1 : 0}"
+
+  name = "${var.app_name}-${var.environment}"
+  user_pool_id = "${aws_cognito_user_pool.pool.id}"
+
+  refresh_token_validity = 30
+  generate_secret = true
+
+  // App client settings
+  supported_identity_providers = ["COGNITO", "${aws_cognito_identity_provider.google.provider_name}"]
+  callback_urls = [
+    "https://${var.app_domain_name}/oauth2/idpresponse",
+  ]
+  logout_urls = [
+    "https://${var.app_domain_name}/accounts/logout/"
+  ]
+  default_redirect_uri = "https://${var.app_domain_name}/oauth2/idpresponse"
+  allowed_oauth_flows = ["code"]
+  allowed_oauth_flows_user_pool_client = true
+  allowed_oauth_scopes = ["openid", "profile", "email"]
+}
+
+resource "aws_cognito_user_pool_domain" "domain" {
+  count = "${var.use_cognito ? 1 : 0}"
+
+  domain = "${var.app_name}-${var.environment}"
+  user_pool_id = "${aws_cognito_user_pool.pool.id}"
+}
+
+resource "aws_lb_listener_rule" "accounts" {
+  count = "${var.use_cognito ? 1 : 0}"
+
+  listener_arn = "${aws_lb_listener.frontend.arn}"
+  priority = 102
+
+  action {
+    type = "authenticate-cognito"
+
+    authenticate_cognito {
+      user_pool_arn = "${aws_cognito_user_pool.pool.arn}"
+      user_pool_client_id = "${aws_cognito_user_pool_client.client.id}"
+      user_pool_domain = "${aws_cognito_user_pool_domain.domain.domain}"
+      scope = "openid profile email"
+      on_unauthenticated_request = "authenticate"
+    }
+  }
+
+  action {
+    type = "forward"
+    target_group_arn = "${aws_lb_target_group.app.arn}"
+  }
+
+  condition {
+    field = "path-pattern"
+    values = ["/accounts/login/*"]
   }
 }
 
@@ -175,7 +339,7 @@ resource "aws_lb_listener" "frontend" {
   port = "443"
   protocol = "HTTPS"
   ssl_policy = "ELBSecurityPolicy-2016-08"
-  certificate_arn = "${aws_acm_certificate_validation.cert.certificate_arn}"
+  certificate_arn = "${coalesce(join("", aws_acm_certificate_validation.cert.*.certificate_arn), join("",data.aws_acm_certificate.existing_cert.*.arn))}"
 
   default_action {
     type = "forward"
@@ -339,6 +503,15 @@ data "template_file" "web_tpl" {
     default_from_email = "${var.default_from_email}"
     panel_app_email = "${var.panel_app_email}"
     panel_app_base_url = "${local.base_url}"
+
+    // create a superuser
+    admin_username = "${var.admin_username}"
+    admin_email = "${var.admin_email}"
+    admin_password = "${var.admin_password}"
+
+    // use_cognito
+    aws_cognito_domain_prefix = "${coalesce(join("", aws_cognito_user_pool_domain.domain.*.domain),"")}"
+    aws_cognito_user_pool_client_id = "${coalesce(join("", aws_cognito_user_pool_client.client.*.id),"")}"
   }
 }
 

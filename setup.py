@@ -42,6 +42,10 @@ setup(
             "factory_boy==2.11.1",
             "pytest-cov==2.5.1",
         ],
+        "aws": [
+            "celery[sqs]==4.2.1",
+            "python-jose[cryptography]==3.0.1",
+        ]
     },
     install_requires=[
         "django==2.1.9",

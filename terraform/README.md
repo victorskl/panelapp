@@ -24,9 +24,19 @@ This directory contains terraform-driven deployments for PanelApp.
     /panelapp/dev/email/password                SecureString
     ```
 
-3. Create AWS Route53 Hosted Zones for `app_domain_name` to be used in deployment. 
+3. If option `use_cognito` is `true` then it also has to define the following additional parameters. Follow [Google as social sign-in IdP]((https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools-configuring-federation-with-social-idp.html)) for how to get OAuth2 Client ID and Secret values.
+    ```
+    /panelapp/dev/cognito/google/oauth_client_id        SecureString
+    /panelapp/dev/cognito/google/oauth_client_secret    SecureString
+    ```
 
-4. Terraform scripts are configured to use default values. To modify these variables, copy `terraform.tfvars.sample` to `terraform.tfvars` and configure there.
+4. Create AWS Route53 Hosted Zones for `app_domain_name` to be used in deployment. 
+
+5. If option `create_cert` is `false` then it also has to create and configure AWS ACM certificate for `app_domain_name`. See [SSL Certificate](#ssl-certificate) section. Managing this manually is desirable due to one or any of the following reasons: 
+    - [ACM has limit on certificate request](https://docs.aws.amazon.com/acm/latest/userguide/acm-limits.html)
+    - You may wish to import SSL certificate from 3rd party provider into ACM, and therefore, manage and update SSL cert manually
+
+6. Terraform scripts are configured to use default values. To modify these variables, copy `terraform.tfvars.sample` to `terraform.tfvars` and configure there.
 
 ### SMTP Email
 
@@ -46,9 +56,18 @@ This directory contains terraform-driven deployments for PanelApp.
 - A designated domain name or sub-domain name should be created.
 - Then, prepare this designated domain name to be hosted at AWS Route53 Public Hosted Zone.
 - Example
-    - Goto AWS Route53 Console
+    - Goto [Route53 Console](https://console.aws.amazon.com/route53/home)
     - Hosted zones > Create Hosted Zone > Type: `Public Hosted Zone` > Domain Name: `panelapp.example.com`
 - Terraform stack will then auto populate any necessary DNS records (A, CNAME).
+
+### SSL Certificate
+
+- If option `create_cert` is `false` (i.e. not managed by terraform) then prepare and create SSL certificate in ACM.
+- Example
+    - Goto [ACM Console](https://console.aws.amazon.com/acm/home)
+    - Provision certificates > Get started > Request a public certificate > Add domain names > DNS validation
+    - ___Create record in Route53___ (blue button) or follow up setting up CNAME record in [Route53 for DNS validation](https://docs.aws.amazon.com/acm/latest/userguide/gs-acm-validate-dns.html)
+
 
 ### Running Stacks
 

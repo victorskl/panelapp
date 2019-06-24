@@ -154,6 +154,7 @@ ADMIN_URL = os.getenv("DJANGO_ADMIN_URL", "admin/")
 AUTH_USER_MODEL = "accounts.User"
 LOGIN_REDIRECT_URL = "home"
 ACCOUNT_EMAIL_VERIFICATION_PERIOD = 24 * 60 * 60 * 3  # 3 days
+LOGOUT_REDIRECT_URL = os.getenv("LOGOUT_REDIRECT_URL", "accounts:login")
 
 # Logging
 

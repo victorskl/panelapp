@@ -96,12 +96,11 @@ variable "database_url" {
 }
 
 variable "django_settings_module" {
-  description = "e.g. DJANGO_SETTINGS_MODULE=panelapp.settings.dev"
-  default = "panelapp.settings.production"
+  description = "Set Django Setting e.g. panelapp.settings.production"
 }
 
 variable "django_log_level" {
-  description = "e.g. DJANGO_LOG_LEVEL=INFO"
+  description = "Set Django logging level e.g. INFO"
   default = "INFO"
 }
 
@@ -172,4 +171,41 @@ variable "panel_app_email" {
 
 variable "app_domain_name" {
   description = "App Domain Name"
+}
+
+variable "admin_username" {
+  description = "Admin username (i.e. Django createsuperuser)"
+}
+
+variable "admin_email" {
+  description = "Admin email address"
+}
+
+variable "admin_password" {
+  description = "Admin password"
+}
+
+variable "create_cert" {
+  description = "Create a new ACM SSL certificate? (true/false)"
+}
+
+//--- Cognito
+
+variable "use_cognito" {
+  description = "Use Cognito? (true/false)"
+}
+
+variable "cognito_allow_admin_create_user_only" {
+  description = "Cognito allow admin create user only"
+  default = false
+}
+
+variable "cognito_password_length" {
+  description = "Cognito password length"
+  default = 10
+}
+
+variable "cognito_password_symbols_required" {
+  description = "Cognito password special character required"
+  default = false
 }

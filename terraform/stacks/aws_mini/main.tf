@@ -69,6 +69,10 @@ data "aws_subnet_ids" "all" {
   vpc_id = "${data.aws_vpc.default.id}"
 }
 
+resource "random_string" "admin_password" {
+  length = 16
+  special = false
+}
 
 //--- RDS
 
@@ -94,6 +98,7 @@ resource "aws_security_group" "rds_sg" {
 
 module "db" {
   source = "terraform-aws-modules/rds/aws"
+  version = "1.28.0"
 
   identifier = "${data.aws_ssm_parameter.db_name.value}db${local.env}"
   name = "${data.aws_ssm_parameter.db_name.value}db${local.env}"
@@ -135,6 +140,7 @@ module "ecs" {
   database_url = "postgres://${module.db.this_db_instance_username}:${data.aws_ssm_parameter.db_password.value}@${module.db.this_db_instance_endpoint}/${module.db.this_db_instance_name}"
   django_secret_key = "${data.aws_ssm_parameter.django_secret_key.value}"
   django_admin_url = "${var.django_admin_url}"
+  django_settings_module = "${var.django_settings_module}"
   health_access_token_location = "${var.health_access_token_location}"
 
   celery_broker_url = "sqs://"
@@ -170,4 +176,11 @@ module "ecs" {
   worker_memory = "${var.worker_memory}"
   worker_replica = "${var.worker_replica}"
   worker_container_name = "${var.worker_container_name}"
+
+  admin_username = "${var.admin_username}"
+  admin_email = "${var.admin_email}"
+  admin_password = "${random_string.admin_password.result}"
+
+  create_cert = "${var.create_cert}"
+  use_cognito = "${var.use_cognito}"
 }
