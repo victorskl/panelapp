@@ -30,7 +30,7 @@ This directory contains terraform-driven deployments for PanelApp.
     /panelapp/dev/cognito/google/oauth_client_secret    SecureString
     ```
 
-4. Create AWS Route53 Hosted Zones for `app_domain_name` to be used in deployment. 
+4. Set variables `app_domain_parent` and `app_domain_name` to be used in deployment. The `app_domain_parent` must be hosted in AWS Route53 Public Hosted Zones with SOA record. See [Domain Name section](#domain-name).
 
 5. If option `create_cert` is `false` then it also has to create and configure AWS ACM certificate for `app_domain_name`. See [SSL Certificate](#ssl-certificate) section. Managing this manually is desirable due to one or any of the following reasons: 
     - [ACM has limit on certificate request](https://docs.aws.amazon.com/acm/latest/userguide/acm-limits.html)
@@ -53,12 +53,18 @@ This directory contains terraform-driven deployments for PanelApp.
 
 ### Domain Name
 
-- A designated domain name or sub-domain name should be created.
-- Then, prepare this designated domain name to be hosted at AWS Route53 Public Hosted Zone.
+- A designated domain name or sub-zone should be created in AWS Route53 Public Hosted Zone.
 - Example
     - Goto [Route53 Console](https://console.aws.amazon.com/route53/home)
-    - Hosted zones > Create Hosted Zone > Type: `Public Hosted Zone` > Domain Name: `panelapp.example.com`
+    - Hosted zones > Create Hosted Zone > Type: `Public Hosted Zone` > Domain Name: `sub.example.com`
+    - Then, use Route53 generated NS records to update at root domain DNS, i.e. DNS setting of `example.com` in this case.
+    - Then, set terraform variable `app_domain_parent` to `sub.example.com`
+    - Then, set terraform variable `app_domain_name` to `panelapp.sub.example.com`
 - Terraform stack will then auto populate any necessary DNS records (A, CNAME).
+
+#### One Level
+
+- If your setup requires only one level (e.g. `panelapp.example.com`) then create public hosted zone with `panelapp.example.com` and set both `app_domain_parent` and `app_domain_name` to the same name, in this case `panelapp.example.com`
 
 ### SSL Certificate
 

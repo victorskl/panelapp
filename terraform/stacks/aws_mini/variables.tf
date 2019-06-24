@@ -104,7 +104,11 @@ variable "panel_app_email" {
 }
 
 variable "app_domain_name" {
-  description = "App Domain Name"
+  description = "App Domain Name (e.g. panelapp.sub.domain.com)"
+}
+
+variable "app_domain_parent" {
+  description = "App Domain Parent (e.g. sub.domain.com)"
 }
 
 // Optional

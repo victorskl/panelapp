@@ -110,7 +110,7 @@ data "aws_acm_certificate" "existing_cert" {
   count = "${var.create_cert ? 0 : 1}"
 
   domain = "${var.app_domain_name}"
-  statuses = ["ISSUED"]
+  statuses = ["ISSUED", "PENDING_VALIDATION"]
   types = ["AMAZON_ISSUED", "IMPORTED"]
   most_recent = true
 }
@@ -140,7 +140,7 @@ resource "aws_route53_record" "cert_validation_dns_record" {
 }
 
 data "aws_route53_zone" "app_dns_zone" {
-  name = "${var.app_domain_name}."
+  name = "${var.app_domain_parent}."
   private_zone = false
 }
 
@@ -181,6 +181,7 @@ resource "aws_cognito_user_pool" "pool" {
     attribute_data_type = "String"
     name = "email"
     required = true
+    mutable = true
 
     string_attribute_constraints {
       min_length = 0
@@ -192,6 +193,7 @@ resource "aws_cognito_user_pool" "pool" {
     attribute_data_type = "String"
     name = "family_name"
     required = true
+    mutable = true
 
     string_attribute_constraints {
       min_length = 0
@@ -203,6 +205,7 @@ resource "aws_cognito_user_pool" "pool" {
     attribute_data_type = "String"
     name = "given_name"
     required = true
+    mutable = true
 
     string_attribute_constraints {
       min_length = 0

@@ -157,6 +157,7 @@ module "ecs" {
   panel_app_email = "${var.panel_app_email}"
 
   app_domain_name = "${var.app_domain_name}"
+  app_domain_parent = "${var.app_domain_parent}"
 
   // optional variables
 
